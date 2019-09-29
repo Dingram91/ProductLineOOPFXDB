@@ -20,19 +20,13 @@ public class Controller {
 
   private static final String JDBCDRIVER = "org.h2.Driver";
   private static final String DBURL = "jdbc:h2:.\\res\\ProductionDB";
-  private Connection conn = null; // blank connection
   private PreparedStatement addProductStmt = null;
 
   /**
    * Constructor for the controller class.
-   *
-   * @throws SQLException Used for handling exceptions that could be thrown from interactions with
-   *                      the H2 database.
    */
-  public Controller() throws SQLException {
+  public Controller() {
     initializeDB();
-    String addProductString = "INSERT INTO Product(type, manufacturer, name) VALUES "
-        + "(?, ?, ?);";
   }
 
   @FXML
@@ -48,9 +42,7 @@ public class Controller {
   private ComboBox<Integer> cbbProduceChooseQuantity;
 
   /**
-   * Executed once at startup to populate the fields that could not be set in scenebuilder.
-   *
-   * @returns none
+   * Executed once at startup to populate the fields that could not be set in scene builder.
    */
   @FXML
   public void initialize() {
@@ -84,13 +76,11 @@ public class Controller {
    */
   @FXML
   void recordProductButtonClick(MouseEvent event) {
-    // todo: add logic for the record button
+    System.out.println("Record Product Button Clicked");
   }
 
   /**
-   * Method to connect to the H2 database and settup the prepared statements for use later.
-   *
-   * @returns none
+   * Method to connect to the H2 database and setup the prepared statements for use later.
    */
   private void initializeDB() {
 
@@ -107,7 +97,8 @@ public class Controller {
       Class.forName(JDBCDRIVER);
 
       //findbugs wants a password to be set but was it not specified for this project.
-      conn = DriverManager.getConnection(DBURL, User, Pass);
+      // blank connection
+      Connection conn = DriverManager.getConnection(DBURL, User, Pass);
       addProductStmt = conn.prepareStatement(addProductString);
 
     } catch (Exception ex) {
