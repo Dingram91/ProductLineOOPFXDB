@@ -8,12 +8,14 @@ import javafx.stage.Stage;
 
 /**
  * Class that contains the program entry point and sets up and executes the scenes for the GUI.
+ *
  * @author Dylan Ingram
  */
 public class Main extends Application {
 
   /**
    * Start method that initializes the windows and loads the scenes for the program.
+   *
    * @param primaryStage The container that hosts the scenes for the program
    * @throws Exception containing the information about the problem with the connection
    */
@@ -28,6 +30,7 @@ public class Main extends Application {
 
   /**
    * Main method that serves only as the entry point to the program.
+   *
    * @param args string array for command line arguments, required for execution but not used.
    */
   public static void main(String[] args) {

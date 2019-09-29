@@ -11,8 +11,9 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 
 /**
- * Class that contains the logic for the GUI. This class handles initializing values for some of
- * the gui components as well as managing the connection and interaction with the H2 database.
+ * Class that contains the logic for the GUI. This class handles initializing values for some of the
+ * gui components as well as managing the connection and interaction with the H2 database.
+ *
  * @author Dylan Ingram
  */
 public class Controller {
@@ -24,6 +25,7 @@ public class Controller {
 
   /**
    * Constructor for the controller class.
+   *
    * @throws SQLException Used for handling exceptions that could be thrown from interactions with
    *                      the H2 database.
    */
@@ -47,6 +49,7 @@ public class Controller {
 
   /**
    * Executed once at startup to populate the fields that could not be set in scenebuilder.
+   *
    * @returns none
    */
   @FXML
@@ -62,6 +65,7 @@ public class Controller {
 
   /**
    * Button handler for clicking the Add Product button.
+   *
    * @param event Contains information from the event system that triggers this method.
    * @throws SQLException Contains the information for problem encountered in the SQL connection.
    */
@@ -75,15 +79,17 @@ public class Controller {
 
   /**
    * Button handler for the Record Product button.
+   *
    * @param event Contains information from the event system that triggers this method.
    */
   @FXML
   void recordProductButtonClick(MouseEvent event) {
-      // todo: add logic for the record button
+    // todo: add logic for the record button
   }
 
   /**
    * Method to connect to the H2 database and settup the prepared statements for use later.
+   *
    * @returns none
    */
   private void initializeDB() {
