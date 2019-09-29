@@ -1,3 +1,9 @@
+/*
+Author: Dylan Ingram
+Date: 9/28/19
+Description: Controller class for the GUI.
+*/
+
 package productionapp;
 
 import java.sql.Connection;

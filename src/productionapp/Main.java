@@ -1,3 +1,10 @@
+/*
+Author: Dylan Ingram
+Date: 9/28/19
+Description: Main method for serving as the entry point of program as well as initalizing
+the scene and controller.
+*/
+
 package productionapp;
 
 import javafx.application.Application;
