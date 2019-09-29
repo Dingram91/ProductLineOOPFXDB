@@ -5,7 +5,10 @@
 ## Documentation
 
 ## Diagrams
-
+### Class Digram
+![](images/classDiagram.PNG)
+### Database Diagram
+![](images/databaseDiagram.png)
 ## Getting Started
 
 ## Built With
