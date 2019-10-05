@@ -29,7 +29,7 @@ public class Main extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
     Parent root = FXMLLoader.load(getClass().getResource("mainScreen.fxml"));
-    primaryStage.setTitle("Hello World");
+    primaryStage.setTitle("Production Line Tracker");
     root.getStylesheets().add(Main.class.getResource("main.css").toExternalForm());
     primaryStage.setScene(new Scene(root, 800, 500));
     primaryStage.show();

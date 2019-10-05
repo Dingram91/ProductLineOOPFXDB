@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ProductLineOOPFXDB.iml" filepath="$PROJECT_DIR$/ProductLineOOPFXDB.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ProductionLineOOPFXDB.iml" filepath="$PROJECT_DIR$/.idea/modules/ProductionLineOOPFXDB.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ProductionLineOOPFXDB.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ProductionLineOOPFXDB.main.iml" />
     </modules>
   </component>

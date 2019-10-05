@@ -52,13 +52,25 @@ public class Controller {
    */
   @FXML
   public void initialize() {
-    cbItemType.getItems().addAll("Audio", "Paper", "Toy");
+    // set choices for the choicebox
+    for (ItemType item : ItemType.values()) {
+      cbItemType.getItems().add(String.valueOf(item));
+    }
+
+
+
     for (int x = 1; x <= 10; x++) {
       cbbProduceChooseQuantity.getItems().addAll(x);
     }
     cbItemType.getSelectionModel().selectFirst(); // set default to first choice
     cbbProduceChooseQuantity.setEditable(true); // allow user to enter a custom value for quantity
     cbbProduceChooseQuantity.getSelectionModel().selectFirst(); // default to first choice
+
+    // Test the widget class
+    widget testWidget = new widget("Ipod", "Apple", "AM");
+    System.out.println(testWidget.toString());
+
+
   }
 
   /**

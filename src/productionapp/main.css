@@ -26,7 +26,8 @@ I have no idea why these show up as warnings for being unused. They are used.
 
 .button {
   -fx-background-color: linear-gradient(#ffdbb8, #cc6600);
-  -fx-border: 2px solid;
+  -fx-border: 2px;
+  -fx-border-style: solid;
   -fx-border-color: #b35900;
 }
 
