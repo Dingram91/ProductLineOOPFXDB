@@ -69,8 +69,6 @@ public class Controller {
     // Test the widget class
     widget testWidget = new widget("Ipod", "Apple", "AM");
     System.out.println(testWidget.toString());
-
-
   }
 
   /**
