@@ -18,7 +18,7 @@
 
 <TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
   prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE"
-  xmlns="http://javafx.com/javafx/8.0.201" xmlns:fx="http://javafx.com/fxml/1"
+  xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
   fx:controller="productionapp.Controller">
   <Tab text="Product Line">
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -40,31 +40,35 @@
         <ChoiceBox fx:id="cbItemType" prefWidth="150.0" GridPane.columnIndex="1"
           GridPane.rowIndex="2"/>
       </GridPane>
-      <Button layoutX="28.0" layoutY="140.0" mnemonicParsing="false"
-        onMouseClicked="#addProductClicked" text="Add Product"/>
-      <Label layoutX="255.0" layoutY="135.0" text="Existing Products:"/>
-      <TableView layoutX="260.0" layoutY="171.0" prefHeight="200.0" prefWidth="326.0">
+      <Button layoutX="28.0" layoutY="140.0" mnemonicParsing="false" onAction="#addProductClicked"
+        text="Add Product"/>
+      <Label layoutX="341.0" layoutY="144.0" text="Existing Products:"/>
+      <TableView fx:id="tvProductLine" layoutX="188.0" layoutY="171.0" prefHeight="200.0"
+        prefWidth="398.0">
         <columns>
-          <TableColumn prefWidth="75.0" text="C1"/>
-          <TableColumn prefWidth="75.0" text="C2"/>
+          <TableColumn fx:id="tcProductLineName" prefWidth="150.0" text="Name"/>
+          <TableColumn fx:id="tcProductLineType" prefWidth="109.0" text="Type"/>
+          <TableColumn fx:id="tcProductLineManufacture" prefWidth="138.0" text="Manufacture"/>
         </columns>
       </TableView>
     </AnchorPane>
   </Tab>
   <Tab text="Produce">
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-      <ListView layoutX="14.0" layoutY="69.0" prefHeight="200.0" prefWidth="200.0"/>
+      <ListView fx:id="lvChooseProduct" layoutX="14.0" layoutY="69.0" prefHeight="200.0"
+        prefWidth="225.0"/>
       <Label layoutX="72.0" layoutY="52.0" text="Choose Product"/>
-      <ComboBox fx:id="cbbProduceChooseQuantity" layoutX="244.0" layoutY="69.0"
-        prefWidth="150.0"/>
-      <Label layoutX="275.0" layoutY="52.0" text="Choose Quantity"/>
+      <ComboBox fx:id="cbbProduceChooseQuantity" layoutX="289.0" layoutY="76.0" prefWidth="150.0"/>
+      <Label layoutX="320.0" layoutY="52.0" text="Choose Quantity"/>
       <Button layoutX="293.0" layoutY="144.0" mnemonicParsing="false"
         onMouseClicked="#recordProductButtonClick" text="Record Product"/>
     </AnchorPane>
   </Tab>
   <Tab text="Production Log">
     <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-      <TextArea layoutX="200.0" layoutY="66.0" prefHeight="200.0" prefWidth="200.0"/>
+      <TextArea fx:id="taProductionLog" layoutX="30.0" layoutY="86.0" prefHeight="200.0"
+        prefWidth="541.0"/>
+      <Label layoutX="260.0" layoutY="6.0" text="Production Log"/>
     </AnchorPane>
   </Tab>
 </TabPane>

@@ -1,16 +1,20 @@
 package productionapp;
 
 public enum ItemType {
-    Audio ("AU"),
-    Visual("VI"),
-    AudioMobile("AM"),
-    VisualMobile("VM");
+  AUDIO("AU"),
+  VISUAL("VI"),
+  AUDIOMOBILE("AM"),
+  VISUALMOBILE("VM");
 
-    public String code;
+  private String code;
 
-    // Constructor
-    ItemType(String selection) {
-        this.code = selection;
-    }
+  // Constructor
+  ItemType(String selection) {
+    this.code = selection;
+  }
+
+  public String getCode() {
+    return code;
+  }
 }
 

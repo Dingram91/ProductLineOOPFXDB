@@ -9,11 +9,23 @@ package productionapp;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseEvent;
 
 /**
@@ -24,17 +36,6 @@ import javafx.scene.input.MouseEvent;
  */
 public class Controller {
 
-  private static final String JDBCDRIVER = "org.h2.Driver";
-  private static final String DBURL = "jdbc:h2:.\\res\\ProductionDB";
-  private PreparedStatement addProductStmt = null;
-
-  /**
-   * Constructor for the controller class.
-   */
-  public Controller() {
-    initializeDB();
-  }
-
   @FXML
   private TextField taProductName;
 
@@ -44,31 +45,85 @@ public class Controller {
   @FXML
   private ChoiceBox<String> cbItemType;
 
+  // Produce tab components
   @FXML
-  private ComboBox<Integer> cbbProduceChooseQuantity;
+  private ListView<Product> lvChooseProduct;
+
+  @FXML
+  private ComboBox<String> cbbProduceChooseQuantity;
+
+  // Product Line tab
+  @FXML
+  private TableView<Product> tvProductLine;
+
+  @FXML
+  private TableColumn<?, ?> tcProductLineName;
+
+  @FXML
+  private TableColumn<?, ?> tcProductLineType;
+
+  @FXML
+  private TableColumn<?, ?> tcProductLineManufacture;
+
+  // Production Log components
+  @FXML
+  private TextArea taProductionLog;
+
+  // Records for use in all tabs
+  // Observable list to hold our Products we can make
+  ObservableList<Product> productLine;
+
+  // Array list for storing the production log records
+  ArrayList<ProductionRecord> productionLog = new ArrayList<>();
+
 
   /**
    * Executed once at startup to populate the fields that could not be set in scene builder.
    */
   @FXML
   public void initialize() {
-    // set choices for the choicebox
+    // set choices for the choicebox in product line
     for (ItemType item : ItemType.values()) {
       cbItemType.getItems().add(String.valueOf(item));
     }
 
-
-
     for (int x = 1; x <= 10; x++) {
-      cbbProduceChooseQuantity.getItems().addAll(x);
+      cbbProduceChooseQuantity.getItems().add(String.valueOf(x));
     }
     cbItemType.getSelectionModel().selectFirst(); // set default to first choice
     cbbProduceChooseQuantity.setEditable(true); // allow user to enter a custom value for quantity
     cbbProduceChooseQuantity.getSelectionModel().selectFirst(); // default to first choice
 
-    // Test the widget class
-    widget testWidget = new widget("Ipod", "Apple", "AM");
-    System.out.println(testWidget.toString());
+    // Setup the product line products table
+    setupProductsLineTable();
+
+    // load products from database
+    loadProductList();
+
+    // setup products in Produce tab list view
+    setupProduceListView();
+
+    // load the production log
+    loadProductionLog();
+
+  }
+
+  void setupProductsLineTable() {
+    // create an observable array for the productLine list
+    productLine = FXCollections.observableArrayList();
+
+    // setup products table in product line tab
+    tcProductLineName.setCellValueFactory(new PropertyValueFactory<>("name"));
+    tcProductLineType.setCellValueFactory(new PropertyValueFactory<>("type"));
+    tcProductLineManufacture.setCellValueFactory(new PropertyValueFactory<>("manufacture"));
+
+    // bind the "Product Line" products table to products list
+    tvProductLine.setItems(productLine);
+
+  }
+
+  void setupProduceListView() {
+    lvChooseProduct.setItems(productLine);
   }
 
   /**
@@ -78,11 +133,34 @@ public class Controller {
    * @throws SQLException Contains the information for problem encountered in the SQL connection.
    */
   @FXML
-  void addProductClicked(MouseEvent event) throws SQLException {
+  void addProductClicked(ActionEvent event) throws SQLException {
+    // get the values from the value fields for a new product
+    String type = cbItemType.getValue();
+    String manufacturer = taManufacturer.getText();
+    String productName = taProductName.getText();
+
+    // create a new product from the Widget class the implements product
+    Widget newProduct = new Widget(productName, manufacturer, ItemType.valueOf(type));
+
+    // get a connection to the database
+    Connection connection = getdbconnection();
+
+    // create our prepared statement
+    String addProductString = "INSERT INTO PUBLIC.PRODUCT(type, manufacturer, name) "
+        + "VALUES (?, ?, ?);";
+    PreparedStatement addProductStmt = connection.prepareStatement(addProductString);
+
+    // set fields for prepared statement
     addProductStmt.setString(1, cbItemType.getValue());
-    addProductStmt.setString(2, taManufacturer.getText());
-    addProductStmt.setString(3, taProductName.getText());
+    addProductStmt.setString(2, newProduct.getManufacture());
+    addProductStmt.setString(3, newProduct.getName());
+
+    // execute statement and close statement and connection
     addProductStmt.execute();
+    addProductStmt.close();
+
+    // reload the products list
+    loadProductList();
   }
 
   /**
@@ -93,33 +171,187 @@ public class Controller {
   @FXML
   void recordProductButtonClick(MouseEvent event) {
     System.out.println("Record Product Button Clicked");
+
+    // create a product from the selection in the Products list
+    Product producedProducts = lvChooseProduct.getSelectionModel().getSelectedItem();
+
+    // get the value for items produced by parsing the string given by the combobox
+    int itemsProduced = Integer.parseInt(cbbProduceChooseQuantity.getSelectionModel()
+        .getSelectedItem());
+
+    ArrayList<ProductionRecord> productionRun = new ArrayList<>();
+    // create a new production record for each item in the Produced count and append to 
+    // production log
+
+    while (itemsProduced > 0) {
+      // create a new production record for each item in the Produced count
+      ProductionRecord productionRecord = new ProductionRecord(producedProducts, itemsProduced);
+
+      // add product to production run
+      productionRun.add(productionRecord);
+
+      // decrement itemsProduced
+      itemsProduced--;
+    }
+
+    // add the products in production run into the database
+    addToProductionDB(productionRun);
+
+    // load the production log
+    loadProductionLog();
+
   }
 
+  void addToProductionDB(ArrayList<ProductionRecord> productionRun) {
+    // get connection to the database
+    Connection connection = getdbconnection();
+
+    // sql String for inserting into database
+    String sqlString = "INSERT into "
+        + "PRODUCTIONRECORD(PRODUCT_ID, SERIAL_NUM, DATE_PRODUCED) VALUES ( ?, ?, ? );";
+
+    // create prepared statement
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlString);) {
+
+      // loop through production run entries and insert them into the database
+      for (ProductionRecord productionRecord : productionRun) {
+        preparedStatement.setInt(1, productionRecord.getProductID());
+        preparedStatement.setString(2, productionRecord.getSerialNum());
+        preparedStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+        preparedStatement.execute();
+
+        preparedStatement.close();
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+  }
+
+  void loadProductionLog() {
+
+    // clear production log before loading
+    productionLog.clear();
+
+    // connect to the database
+    Connection connection = getdbconnection();
+
+    // sql query string
+    String sqlStatement = "SELECT * from PRODUCTIONRECORD";
+
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);) {
+      // create the prepared statement
+
+      // execute statement and get results
+      ResultSet resultSet = preparedStatement.executeQuery();
+
+      // loop through results and add to production log array
+
+      while (resultSet.next()) {
+        int productNumber = resultSet.getInt("PRODUCTION_NUM");
+        int productId = resultSet.getInt("PRODUCT_ID");
+        String serialNum = resultSet.getString("SERIAL_NUM");
+        Timestamp timestamp = resultSet.getTimestamp("DATE_PRODUCED");
+
+        // create a product record from query result
+        ProductionRecord productionRecord = new ProductionRecord(productNumber, productId,
+            serialNum, new Date(timestamp.getTime()));
+
+        // add production record to productionLog array
+        productionLog.add(productionRecord);
+      }
+
+      resultSet.close();
+
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    // show the records
+    showProduction();
+
+  }
+
+  private void showProduction() {
+    // clear the text area
+    taProductionLog.clear();
+
+    // loop through production lgo and add to the text area
+    for (ProductionRecord productionRecord : productionLog) {
+      taProductionLog.appendText(productionRecord.toString());
+    }
+
+  }
+
+  void loadProductList() {
+    // clear the productLine before loading
+    productLine.clear();
+
+    // connect to the database
+    Connection connection = getdbconnection();
+
+    // make prepared statement
+    String sqlStatement = "SELECT * from PRODUCT";
+
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sqlStatement);) {
+
+      ResultSet resultSet = preparedStatement.executeQuery();
+
+      //loop through resultset and add products to the productLine array
+      while (resultSet.next()) {
+        // get result fields for item
+        String name = resultSet.getString("NAME");
+        String manufacture = resultSet.getString("MANUFACTURER");
+        ItemType itemType = ItemType.valueOf(resultSet.getString("TYPE"));
+        // create a product
+        Product newProduct = new Widget(name, manufacture, itemType);
+        // append product to productLine array
+        productLine.add(newProduct);
+
+      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+
+  }
+
+
   /**
-   * Method to connect to the H2 database and setup the prepared statements for use later.
+   * Gets a connection to the database.
+   *
+   * @return Connection
    */
-  private void initializeDB() {
+  private Connection getdbconnection() {
+    // setup variables with database url and driver locations
+    final String JdbcDriver = "org.h2.Driver";
+    final String DbUrl = "jdbc:h2:.\\res\\ProductionDB";
 
     // Database credentials
     final String User = "";
     // findbugs error for not setting password, will be set at a later time.
     final String Pass = "";
 
-    String addProductString = "INSERT INTO PUBLIC.PRODUCT(type, manufacturer, name) "
-        + "VALUES (?, ?, ?);";
+    Connection conn;
 
     try {
-      //STEP 1: Register JDBC driver
-      Class.forName(JDBCDRIVER);
+      //Register JDBC driver
+      Class.forName(JdbcDriver);
 
-      //findbugs wants a password to be set but was it not specified for this project.
-      // blank connection
-      Connection conn = DriverManager.getConnection(DBURL, User, Pass);
-      addProductStmt = conn.prepareStatement(addProductString);
+      //findbugs wants a password to be set but was it was not specified for this project.
+      // create connection
+      conn = DriverManager.getConnection(DbUrl, User, Pass);
 
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    } //end try catch
-  } //end method initializeDB
+      return conn;
+
+    } catch (ClassNotFoundException | SQLException e) {
+      throw new RuntimeException("Could not connect to the database", e);
+    }
+  }
+
 
 }
+
+
