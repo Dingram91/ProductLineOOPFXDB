@@ -1,5 +1,8 @@
 package productionapp;
 
+/**
+ * interface for items that defines what an item should be able to do.
+ */
 public interface Item {
 
   public int getId();

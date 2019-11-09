@@ -1,5 +1,8 @@
 package productionapp;
 
+/**
+ * Interface that defines what a movie or multimedia player should be able to do.
+ */
 public interface MultimediaControl {
 
   public void play();

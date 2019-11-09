@@ -1,5 +1,9 @@
 package productionapp;
 
+/**
+ * Movie player that is a product that implements the MultimediaController defining what a movie
+ * player should do.
+ */
 public class MoviePlayer extends Product implements MultimediaControl {
 
   Screen screen;

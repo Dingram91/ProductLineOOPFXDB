@@ -1,5 +1,8 @@
 package productionapp;
 
+/**
+ * Abstract product class that defines the fields and methods for producible products.
+ */
 public abstract class Product implements Item {
 
   int id;

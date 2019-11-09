@@ -2,6 +2,9 @@ package productionapp;
 
 import java.util.Date;
 
+/**
+ * Production record that represents a specific product that was produced.
+ */
 public class ProductionRecord {
 
   private int productionNum;

@@ -1,5 +1,8 @@
 package productionapp;
 
+/**
+ * Screen class that represents a screen that can be produced.
+ */
 public class Screen implements ScreenSpec {
 
   private String resolution;

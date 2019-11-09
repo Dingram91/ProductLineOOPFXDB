@@ -1,5 +1,8 @@
 package productionapp;
 
+/**
+ * Item type enum that represents the different categories of products that can be produced.
+ */
 public enum ItemType {
   AUDIO("AU"),
   VISUAL("VI"),
