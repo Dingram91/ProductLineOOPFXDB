@@ -11,11 +11,10 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="file://C:/Program Files (x86)/H2/bin" />
+          <root url="jar://$MODULE_DIR$/res/h2-1.4.199.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
-        <jarDirectory url="file://C:/Program Files (x86)/H2/bin" recursive="false" />
       </library>
     </orderEntry>
   </component>

@@ -23,6 +23,22 @@ public abstract class Product implements Item {
     this.type = type;
   }
 
+  /**
+   * Overloaded Constructor for the Product class for products that have already been given an
+   * ID by the database.
+   *
+   * @param id          The id assigned by the database to the product.
+   * @param name        The name of the product.
+   * @param manufacture The name of the product's manufacturer.
+   * @param type        The type of the product.
+   */
+  public Product(int id, String name, String manufacture, ItemType type) {
+    this.id = id;
+    this.name = name;
+    this.manufacture = manufacture;
+    this.type = type;
+  }
+
   @Override
   public int getId() {
     return id;

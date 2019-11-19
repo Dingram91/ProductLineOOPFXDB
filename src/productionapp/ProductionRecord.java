@@ -95,5 +95,10 @@ public class ProductionRecord {
     return "Prod. Num: " + productionNum + " Product ID: " + productID + " Serial Num: "
         + serialNum + " Date: " + prodDate + "\n";
   }
+
+  public String toStringWithName(String name) {
+    return "Prod. Name: " + name + " Product ID: " + productID + " Serial Num: "
+        + serialNum + " Date: " + prodDate + "\n";
+  }
 }
 

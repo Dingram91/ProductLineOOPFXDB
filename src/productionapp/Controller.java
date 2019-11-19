@@ -173,7 +173,7 @@ public class Controller {
     System.out.println("Record Product Button Clicked");
 
     // create a product from the selection in the Products list
-    Product producedProducts = lvChooseProduct.getSelectionModel().getSelectedItem();
+    Product producedProduct = lvChooseProduct.getSelectionModel().getSelectedItem();
 
     // get the value for items produced by parsing the string given by the combobox
     int itemsProduced = Integer.parseInt(cbbProduceChooseQuantity.getSelectionModel()
@@ -185,7 +185,7 @@ public class Controller {
 
     while (itemsProduced > 0) {
       // create a new production record for each item in the Produced count
-      ProductionRecord productionRecord = new ProductionRecord(producedProducts, itemsProduced);
+      ProductionRecord productionRecord = new ProductionRecord(producedProduct, itemsProduced);
 
       // add product to production run
       productionRun.add(productionRecord);
@@ -219,13 +219,33 @@ public class Controller {
         preparedStatement.setString(2, productionRecord.getSerialNum());
         preparedStatement.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
         preparedStatement.execute();
-
-        preparedStatement.close();
       }
+      preparedStatement.close();
 
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  private String getProductNameFromId(int id) {
+    String itemName = "";
+
+    Connection connection = getdbconnection();
+
+    String sql = "SELECT NAME from Product where id = ?;";
+    try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+      preparedStatement.setInt(1, id);
+      ResultSet resultSet = preparedStatement.executeQuery();
+
+      while (resultSet.next()) {
+        itemName = resultSet.getString(1);
+      }
+
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return itemName;
   }
 
   void loadProductionLog() {
@@ -279,7 +299,8 @@ public class Controller {
 
     // loop through production lgo and add to the text area
     for (ProductionRecord productionRecord : productionLog) {
-      taProductionLog.appendText(productionRecord.toString());
+      String itemName = getProductNameFromId(productionRecord.getProductID());
+      taProductionLog.appendText(productionRecord.toStringWithName(itemName));
     }
 
   }
@@ -301,11 +322,12 @@ public class Controller {
       //loop through resultset and add products to the productLine array
       while (resultSet.next()) {
         // get result fields for item
+        int id = resultSet.getInt("ID");
         String name = resultSet.getString("NAME");
         String manufacture = resultSet.getString("MANUFACTURER");
         ItemType itemType = ItemType.valueOf(resultSet.getString("TYPE"));
         // create a product
-        Product newProduct = new Widget(name, manufacture, itemType);
+        Product newProduct = new Widget(id ,name, manufacture, itemType);
         // append product to productLine array
         productLine.add(newProduct);
 
