@@ -3,7 +3,7 @@ This program allows a manufacturer to easily record log their production runs co
 ## Demonstration
 ![](images/demo.gif)
 ## Documentation
-
+[Java-Docs](https://dingram91.github.io/ProductLineOOPFXDB/)
 ## Diagrams
 ### Class Digram
 ![](images/classDiagram.PNG)
@@ -19,11 +19,11 @@ This program allows a manufacturer to easily record log their production runs co
 5. enter command "java -jar ProductLineOOPFXDB.jar"
 
 ### Using the Application
-#####To add a new product:  
-  Enter information for a producable product under the Product Line tab.  
-#####To record a production run:  
+##### To add a new product:  
+  Enter information for a producible product under the Product Line tab.  
+##### To record a production run:  
   Select a product and quantity in the Produce tab and click "Record Production".  
-#####To view a log of production runs:  
+##### To view a log of production runs:  
   Navigate to the Production Log tab.  
 
 ## Built With
