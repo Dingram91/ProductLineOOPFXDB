@@ -1,4 +1,5 @@
 # ProductLineOOPFXDB
+Class project for OOP - FGCU Fall 2019  
 This program allows a manufacturer to easily record log their production runs complete with generated timestamps and serial numbers for each item produced.
 ## Demonstration
 ![](images/demo.gif)
