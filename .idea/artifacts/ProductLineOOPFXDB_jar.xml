@@ -1,0 +1,13 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ProductLineOOPFXDB:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ProductLineOOPFXDB_jar</output-path>
+    <root id="archive" name="ProductLineOOPFXDB.jar">
+      <element id="module-output" name="ProductLineOOPFXDB" />
+      <element id="module-output" name="ProductionLineOOPFXDB.main" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/res/h2-1.4.199.jar" path-in-jar="/" />
+      <element id="directory" name="res">
+        <element id="file-copy" path="$PROJECT_DIR$/res/properties" />
+      </element>
+    </root>
+  </artifact>
+</component>

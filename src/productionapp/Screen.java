@@ -2,6 +2,8 @@ package productionapp;
 
 /**
  * Screen class that represents a screen that can be produced.
+ *
+ * @author Dylan Ingram
  */
 public class Screen implements ScreenSpec {
 

@@ -6,6 +6,9 @@ Description: Controller class for the GUI.
 
 package productionapp;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -14,12 +17,16 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -50,6 +57,12 @@ public class Controller {
   private ListView<Product> lvChooseProduct;
 
   @FXML
+  private Label lblProduceErrorMessage;
+
+  @FXML
+  private Label lblQuantityError;
+
+  @FXML
   private ComboBox<String> cbbProduceChooseQuantity;
 
   // Product Line tab
@@ -64,6 +77,12 @@ public class Controller {
 
   @FXML
   private TableColumn<?, ?> tcProductLineManufacture;
+
+  @FXML
+  private Label lblProductNameErrorMessage;
+
+  @FXML
+  private Label lblManufactureErrorMessage;
 
   // Production Log components
   @FXML
@@ -82,10 +101,17 @@ public class Controller {
    */
   @FXML
   public void initialize() {
+
     // set choices for the choicebox in product line
     for (ItemType item : ItemType.values()) {
       cbItemType.getItems().add(String.valueOf(item));
     }
+
+    // hide the error messages for fields by default
+    lblManufactureErrorMessage.setVisible(false);
+    lblProductNameErrorMessage.setVisible(false);
+    lblProduceErrorMessage.setVisible(false);
+    lblQuantityError.setVisible(false);
 
     for (int x = 1; x <= 10; x++) {
       cbbProduceChooseQuantity.getItems().add(String.valueOf(x));
@@ -108,6 +134,10 @@ public class Controller {
 
   }
 
+  /**
+   * This method sets up a list of products for our producible products and associates the table in
+   * the Product Line table with this list.
+   */
   void setupProductsLineTable() {
     // create an observable array for the productLine list
     productLine = FXCollections.observableArrayList();
@@ -122,6 +152,10 @@ public class Controller {
 
   }
 
+  /**
+   * This method adds them items from the product line to the produce tab so that they can be used
+   * to track production.
+   */
   void setupProduceListView() {
     lvChooseProduct.setItems(productLine);
   }
@@ -134,33 +168,136 @@ public class Controller {
    */
   @FXML
   void addProductClicked(ActionEvent event) throws SQLException {
-    // get the values from the value fields for a new product
-    String type = cbItemType.getValue();
-    String manufacturer = taManufacturer.getText();
-    String productName = taProductName.getText();
 
-    // create a new product from the Widget class the implements product
-    Widget newProduct = new Widget(productName, manufacturer, ItemType.valueOf(type));
+    // check for errors in any of the fields before executing database update
+    if (!checkProductLineTabErrors()) {
+      // get the values from the value fields for a new product
+      String type = cbItemType.getValue();
+      String manufacturer = taManufacturer.getText();
+      String productName = taProductName.getText();
 
-    // get a connection to the database
-    Connection connection = getdbconnection();
+      // create a new product from the Widget class the implements product
+      Widget newProduct = new Widget(productName, manufacturer, ItemType.valueOf(type));
 
-    // create our prepared statement
-    String addProductString = "INSERT INTO PUBLIC.PRODUCT(type, manufacturer, name) "
-        + "VALUES (?, ?, ?);";
-    PreparedStatement addProductStmt = connection.prepareStatement(addProductString);
+      // get a connection to the database
+      Connection connection = getdbconnection();
 
-    // set fields for prepared statement
-    addProductStmt.setString(1, cbItemType.getValue());
-    addProductStmt.setString(2, newProduct.getManufacture());
-    addProductStmt.setString(3, newProduct.getName());
+      // create our prepared statement
+      String addProductString = "INSERT INTO PUBLIC.PRODUCT(type, manufacturer, name) "
+          + "VALUES (?, ?, ?);";
+      PreparedStatement addProductStmt = connection.prepareStatement(addProductString);
 
-    // execute statement and close statement and connection
-    addProductStmt.execute();
-    addProductStmt.close();
+      // set fields for prepared statement
+      addProductStmt.setString(1, cbItemType.getValue());
+      addProductStmt.setString(2, newProduct.getManufacture());
+      addProductStmt.setString(3, newProduct.getName());
 
-    // reload the products list
-    loadProductList();
+      // execute statement and close statement and connection
+      addProductStmt.execute();
+      addProductStmt.close();
+
+      // reload the products list
+      loadProductList();
+    }
+  }
+
+  /**
+   * This method validates the fields in the product line and displays errors to the user.
+   *
+   * @return returns true if an error is encountered in one or more entry fields
+   */
+  private boolean checkProductLineTabErrors() {
+    // This string will store our error message to display to users if one of the fields is
+    // incorrect.
+    String productNameErrorMessage = "";
+    String manufactureErrorMessage = "";
+    if (taProductName.getText().isEmpty()) {
+      taProductName.setStyle("-fx-background-color: orangered");
+      productNameErrorMessage = "Product name is required.";
+    } else {
+      taProductName.setStyle("-fx-background-color: white");
+    }
+    if (taManufacturer.getText().isEmpty()) {
+      taManufacturer.setStyle("-fx-background-color: orangered");
+      manufactureErrorMessage = "Manufacture name is required.";
+    } else {
+      taManufacturer.setStyle("-fx-background-color: white");
+    }
+
+    // check for an error message and display it if one is found, else hide it
+    if (productNameErrorMessage.isEmpty()) {
+      lblProductNameErrorMessage.setVisible(false);
+    } else {
+      lblProductNameErrorMessage.setText(productNameErrorMessage);
+      lblProductNameErrorMessage.setVisible(true);
+    }
+    if (manufactureErrorMessage.isEmpty()) {
+      lblManufactureErrorMessage.setVisible(false);
+    } else {
+      lblManufactureErrorMessage.setText(manufactureErrorMessage);
+      lblManufactureErrorMessage.setVisible(true);
+    }
+
+    // return false if no errors were found
+    if (productNameErrorMessage.isEmpty() && manufactureErrorMessage.isEmpty()) {
+      return false;
+    } else {
+      return true;
+    }
+
+  }
+
+  /**
+   * This method validates the fields on a specified page to prevent errors.
+   *
+   * @return returns true if an error is encountered in one or more entry fields
+   */
+  private boolean checkProduceTabErrors() {
+    // String to display to user if an error is found
+    String chooseProductErrorMessage = "";
+    String chooseQuantityErrorMessage = "";
+
+    // regex for checking that quantity is a positive int
+    String regex = "^(?!0+$)\\d+$";
+    String quantityChoice = cbbProduceChooseQuantity.getValue();
+    final Pattern pattern = Pattern.compile(regex, Pattern.MULTILINE);
+    final Matcher matcher = pattern.matcher(quantityChoice);
+    if (!matcher.find()) {
+      cbbProduceChooseQuantity.setStyle("-fx-background-color: orangered");
+      chooseQuantityErrorMessage = "Quantity must be a positive integer";
+    } else {
+      cbbProduceChooseQuantity.setStyle("-fx-background-color: white");
+    }
+
+    // check that a Product has been selected
+    if (lvChooseProduct.getSelectionModel().getSelectedItem() == null) {
+      lvChooseProduct.setStyle("-fx-background-color: orangered");
+      chooseProductErrorMessage = "Must choose a product to produce.";
+    } else {
+      lvChooseProduct.setStyle("-fx-background-color: white");
+    }
+
+    // display error messages
+    if (!chooseProductErrorMessage.isEmpty()) {
+      lblProduceErrorMessage.setText(chooseProductErrorMessage);
+      lblProduceErrorMessage.setVisible(true);
+    } else {
+      lblProduceErrorMessage.setVisible(false);
+    }
+    if (!chooseQuantityErrorMessage.isEmpty()) {
+      lblQuantityError.setText(chooseQuantityErrorMessage);
+      lblQuantityError.setVisible(true);
+    } else {
+      lblQuantityError.setVisible(false);
+    }
+
+    // return true is an error was found
+    if (chooseProductErrorMessage.isEmpty() && chooseQuantityErrorMessage.isEmpty()) {
+      return false;
+    } else {
+      return true;
+    }
+
   }
 
   /**
@@ -170,38 +307,44 @@ public class Controller {
    */
   @FXML
   void recordProductButtonClick(MouseEvent event) {
-    System.out.println("Record Product Button Clicked");
+    // check for errors before accessing database
+    if (!checkProduceTabErrors()) {
+      // create a product from the selection in the Products list
+      Product producedProduct = lvChooseProduct.getSelectionModel().getSelectedItem();
 
-    // create a product from the selection in the Products list
-    Product producedProduct = lvChooseProduct.getSelectionModel().getSelectedItem();
+      // get the value for items produced by parsing the string given by the combobox
+      int itemsProduced = Integer.parseInt(cbbProduceChooseQuantity.getSelectionModel()
+          .getSelectedItem());
 
-    // get the value for items produced by parsing the string given by the combobox
-    int itemsProduced = Integer.parseInt(cbbProduceChooseQuantity.getSelectionModel()
-        .getSelectedItem());
+      ArrayList<ProductionRecord> productionRun = new ArrayList<>();
+      // create a new production record for each item in the Produced count and append to
+      // production log
 
-    ArrayList<ProductionRecord> productionRun = new ArrayList<>();
-    // create a new production record for each item in the Produced count and append to 
-    // production log
+      while (itemsProduced > 0) {
+        // create a new production record for each item in the Produced count
+        ProductionRecord productionRecord = new ProductionRecord(producedProduct);
 
-    while (itemsProduced > 0) {
-      // create a new production record for each item in the Produced count
-      ProductionRecord productionRecord = new ProductionRecord(producedProduct, itemsProduced);
+        // add product to production run
+        productionRun.add(productionRecord);
 
-      // add product to production run
-      productionRun.add(productionRecord);
+        // decrement itemsProduced
+        itemsProduced--;
+      }
 
-      // decrement itemsProduced
-      itemsProduced--;
+      // add the products in production run into the database
+      addToProductionDB(productionRun);
+
+      // load the production log
+      loadProductionLog();
     }
-
-    // add the products in production run into the database
-    addToProductionDB(productionRun);
-
-    // load the production log
-    loadProductionLog();
-
   }
 
+  /**
+   * This method loops through a list of Product Records for items that have been produced and adds
+   * them to the ProductionRecord table in our database.
+   *
+   * @param productionRun ArrayList of ProductionRecords
+   */
   void addToProductionDB(ArrayList<ProductionRecord> productionRun) {
     // get connection to the database
     Connection connection = getdbconnection();
@@ -233,7 +376,7 @@ public class Controller {
     Connection connection = getdbconnection();
 
     String sql = "SELECT NAME from Product where id = ?;";
-    try(PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+    try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
       preparedStatement.setInt(1, id);
       ResultSet resultSet = preparedStatement.executeQuery();
 
@@ -248,10 +391,18 @@ public class Controller {
     return itemName;
   }
 
+  /**
+   * This method loads the ProductionRecords from the database and appends them to our list of
+   * production records and calls another method to display them.
+   */
   void loadProductionLog() {
 
     // clear production log before loading
     productionLog.clear();
+
+    // reset the class variable items type counts in the ProductionRecords class so proper item
+    // serial numbers are maintained
+    ProductionRecord.resetItemCounts();
 
     // connect to the database
     Connection connection = getdbconnection();
@@ -266,7 +417,6 @@ public class Controller {
       ResultSet resultSet = preparedStatement.executeQuery();
 
       // loop through results and add to production log array
-
       while (resultSet.next()) {
         int productNumber = resultSet.getInt("PRODUCTION_NUM");
         int productId = resultSet.getInt("PRODUCT_ID");
@@ -283,16 +433,17 @@ public class Controller {
 
       resultSet.close();
 
-
     } catch (SQLException e) {
       e.printStackTrace();
     }
-
     // show the records
     showProduction();
-
   }
 
+  /**
+   * This method loops through our productionLog containing all of our ProductionRecords and
+   * displays them in the Production Log tab.
+   */
   private void showProduction() {
     // clear the text area
     taProductionLog.clear();
@@ -302,9 +453,11 @@ public class Controller {
       String itemName = getProductNameFromId(productionRecord.getProductID());
       taProductionLog.appendText(productionRecord.toStringWithName(itemName));
     }
-
   }
 
+  /**
+   * This method loads the products from our database and adds them to our productLine list.
+   */
   void loadProductList() {
     // clear the productLine before loading
     productLine.clear();
@@ -327,7 +480,7 @@ public class Controller {
         String manufacture = resultSet.getString("MANUFACTURER");
         ItemType itemType = ItemType.valueOf(resultSet.getString("TYPE"));
         // create a product
-        Product newProduct = new Widget(id ,name, manufacture, itemType);
+        Product newProduct = new Widget(id, name, manufacture, itemType);
         // append product to productLine array
         productLine.add(newProduct);
 
@@ -336,8 +489,6 @@ public class Controller {
     } catch (SQLException e) {
       e.printStackTrace();
     }
-
-
   }
 
 
@@ -353,8 +504,18 @@ public class Controller {
 
     // Database credentials
     final String User = "";
-    // findbugs error for not setting password, will be set at a later time.
-    final String Pass = "";
+
+    // Non hardcoded password is fetched from the properties file
+    Properties prop = new Properties();
+    try {
+      prop.load(new FileInputStream("res/properties"));
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    // reverse the order
+    final String Pass = reverseString(prop.getProperty("password"));
 
     Connection conn;
 
@@ -362,7 +523,6 @@ public class Controller {
       //Register JDBC driver
       Class.forName(JdbcDriver);
 
-      //findbugs wants a password to be set but was it was not specified for this project.
       // create connection
       conn = DriverManager.getConnection(DbUrl, User, Pass);
 
@@ -373,7 +533,18 @@ public class Controller {
     }
   }
 
+  /**
+   * This is a recursive method used to reverse the string containing the database password.
+   *
+   * @param pw The clear text password that needs to be reversed.
+   * @return The parameter string in reverse order.
+   */
+  public String reverseString(String pw) {
+    if (pw.length() == 1) {
+      return pw;
+    } else {
+      return reverseString(pw.substring(1, pw.length())) + pw.charAt(0);
+    }
+  }
 
 }
-
-

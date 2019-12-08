@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact name="res">
+    <output-path>$PROJECT_DIR$/out/artifacts/ProductLineOOPFXDB_jar/res</output-path>
+    <root id="root">
+      <element id="file-copy" path="$PROJECT_DIR$/res/properties" />
+      <element id="file-copy" path="$PROJECT_DIR$/res/ProductionDB.mv.db" />
+    </root>
+  </artifact>
+</component>

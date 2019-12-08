@@ -2,6 +2,8 @@ package productionapp;
 
 /**
  * Abstract product class that defines the fields and methods for producible products.
+ *
+ * @author Dylan Ingram
  */
 public abstract class Product implements Item {
 
@@ -24,8 +26,8 @@ public abstract class Product implements Item {
   }
 
   /**
-   * Overloaded Constructor for the Product class for products that have already been given an
-   * ID by the database.
+   * Overloaded Constructor for the Product class for products that have already been given an ID by
+   * the database.
    *
    * @param id          The id assigned by the database to the product.
    * @param name        The name of the product.

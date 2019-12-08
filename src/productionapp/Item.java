@@ -2,6 +2,8 @@ package productionapp;
 
 /**
  * interface for items that defines what an item should be able to do.
+ *
+ * @author Dylan Ingram
  */
 public interface Item {
 

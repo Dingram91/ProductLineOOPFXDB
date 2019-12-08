@@ -1,11 +1,7 @@
 /*
 Author: Dylan Ingram
-Date: 9/28/19
-Description: CSS file for styling the GUI scenes.
-*/
-/*
-I have no idea why these show up as warnings for being unused. They are used.
-*/
+Description: CSS file for styling the GUI.
+ */
 .root {
   -fx-background-color: #ffe6cc;
 }
@@ -33,4 +29,8 @@ I have no idea why these show up as warnings for being unused. They are used.
 
 .button:hover {
   -fx-background-color: #cc6600;
+}
+
+.errorMessage {
+  -fx-text-fill: red;
 }
